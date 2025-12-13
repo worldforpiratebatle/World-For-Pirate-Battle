@@ -1,0 +1,205 @@
+/* --- Custom Styles for the Pirate Theme --- */
+
+:root {
+    --wood-dark: #2a1b0e;
+    --wood-light: #5d4037;
+    --gold-main: #ffd700;
+    --gold-shadow: #b8860b;
+    --parchment: #f3e5ab;
+    --btn-green-top: #66cc33;
+    --btn-green-bot: #336600;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    /* Fundo geranciado via HTML para vídeo ou imagem */
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* Top Bar Wood Texture */
+.top-wood-bar {
+    background: linear-gradient(to bottom, #3e2723, #261612);
+    border-bottom: 2px solid #b8860b;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+}
+
+/* Typography */
+.font-pirate {
+    font-family: 'Cinzel Decorative', cursive;
+}
+.font-western {
+    font-family: 'Rye', serif;
+}
+
+/* The Main Parchment (Registration Form) */
+.parchment-bg {
+    background-color: #e8dcb5;
+    background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');
+    box-shadow: 
+        inset 0 0 40px rgba(62, 39, 35, 0.6),
+        0 0 20px rgba(0,0,0,0.8);
+    border: 1px solid #cbb682;
+    position: relative;
+}
+
+.parchment-bg::before, .parchment-bg::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-size: 20px 20px;
+    background-repeat: repeat-x;
+}
+
+/* Gold Borders/Frames */
+.gold-frame {
+    border: 3px solid transparent;
+    border-image: linear-gradient(to bottom, #ffd700, #b8860b, #ffd700) 1;
+    box-shadow: 0 0 10px #b8860b;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Input Fields styled as "carved" into paper */
+.input-carved {
+    background-color: #dfd3b0;
+    border: 1px solid #bda87f;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.3);
+    color: #3e2723;
+    font-weight: bold;
+}
+.input-carved:focus {
+    outline: none;
+    background-color: #fffef0;
+    border-color: #8b4513;
+}
+
+/* The Big Green Button */
+.btn-play {
+    background: linear-gradient(to bottom, #76c043 0%, #4a8a2a 50%, #2f5918 100%);
+    border: 2px solid #aaff77;
+    border-radius: 8px;
+    box-shadow: 
+        0 0 10px #4caf50,
+        inset 0 1px 0 rgba(255,255,255,0.4);
+    text-shadow: 1px 1px 2px black;
+    transition: transform 0.1s, filter 0.1s;
+}
+.btn-play:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
+.btn-play:active {
+    transform: scale(0.98);
+}
+
+/* Side Decorations */
+.decorative-side {
+    position: relative;
+}
+.decorative-side::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    bottom: 10%;
+    left: -10px;
+    width: 4px;
+    background: repeating-linear-gradient(45deg, #5d4037, #5d4037 5px, #3e2723 5px, #3e2723 10px);
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+/* Menu Buttons */
+.nav-btn {
+    background: linear-gradient(to bottom, #ff7f00, #a04000);
+    border: 2px solid #ffd700;
+    border-radius: 20px;
+    box-shadow: 0 4px 0 #5d2500;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    transition: all 0.1s;
+}
+.nav-btn:hover {
+    filter: brightness(1.2);
+    margin-top: -1px;
+    box-shadow: 0 5px 0 #5d2500;
+}
+.nav-btn:active {
+    margin-top: 3px;
+    box-shadow: 0 1px 0 #5d2500;
+}
+
+/* Checkbox Customization */
+.custom-checkbox {
+    accent-color: #5d4037;
+}
+
+/* Logo Text Styling */
+.logo-text {
+    background: linear-gradient(to bottom, #fff 20%, #ffd700 50%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(2px 4px 0px #000);
+}
+
+/* --- New Styles for Terms and Conditions Section --- */
+#terms-content {
+    display: none; 
+}
+
+/* --- Styles for Dev Message Modal --- */
+#dev-modal {
+    display: none; /* Hidden by default */
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: #2a1b0e;
+    border: 3px solid #b8860b;
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 0 20px #ffd700;
+    color: #f3e5ab;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.discord-btn {
+    background-color: #5865F2;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+    transition: background 0.2s;
+}
+.discord-btn:hover {
+    background-color: #4752C4;
+}

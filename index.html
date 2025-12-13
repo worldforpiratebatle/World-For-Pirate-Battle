@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World For Pirate Battle - Jogue Agora!</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rye&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS File -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Styles específicos para o Vídeo de Fundo -->
+    <style>
+        body {
+            background-image: none !important; 
+            background-color: #000 !important;
+        }
+        .video-background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -50;
+            overflow: hidden;
+        }
+        .video-background-container video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -40;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- VÍDEO DE FUNDO -->
+    <div class="video-background-container">
+        <video autoplay muted loop playsinline>
+            <source src="img/fundo.mp4" type="video/mp4">
+            Seu navegador não suporta vídeos de fundo.
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- DEVELOPMENT MESSAGE MODAL (Popup) -->
+    <div id="dev-modal" class="modal-backdrop">
+        <div class="modal-content relative">
+            <!-- Close Button (X) -->
+            <button onclick="closeDevModal()" class="absolute top-2 right-4 text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+            
+            <i class="fas fa-hammer text-4xl text-yellow-500 mb-4"></i>
+            <h2 id="txt-modal-title" class="font-pirate text-2xl text-yellow-500 mb-2">Em Construção</h2>
+            <p id="txt-modal-msg" class="text-gray-300 mb-4 px-4 leading-relaxed">
+                O registro e login estará disponível em breve, marujo! Nosso mundo ainda está em construção. Para acompanhar cada novidade do desenvolvimento, embarque no nosso Discord.
+            </p>
+            
+            <a href="https://discord.gg/aj4BrhMVYk" target="_blank" class="discord-btn hover:scale-105 transition-transform">
+                <i class="fab fa-discord"></i> <span id="txt-modal-discord-btn">Embarcar no Discord</span>
+            </a>
+
+            <div class="mt-4">
+                <button onclick="closeDevModal()" class="text-xs text-gray-500 underline hover:text-gray-300 uppercase" id="txt-modal-close">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Navigation / Login Bar -->
+    <header class="top-wood-bar w-full py-2 z-50 relative">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-2">
+            <!-- Small Login Form (Trigger Dev Modal on Submit) -->
+            <div class="flex items-center gap-2 text-xs md:text-sm">
+                <form class="flex flex-wrap gap-2 items-center" onsubmit="event.preventDefault(); showDevModal();">
+                    <input id="inp-user" type="text" placeholder="Usuário" class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-white focus:outline-none focus:border-yellow-500">
+                    <input id="inp-pass" type="password" placeholder="••••••" class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-white focus:outline-none focus:border-yellow-500">
+                    <button id="txt-login-btn" type="submit" class="bg-gradient-to-b from-yellow-600 to-yellow-800 border border-yellow-400 text-white font-bold px-3 py-1 rounded shadow-md hover:brightness-110 uppercase text-xs">
+                        Login
+                    </button>
+                </form>
+                <div class="hidden md:flex gap-2 ml-2">
+                    <a id="txt-forgot-pass" href="#" class="text-gray-400 hover:text-white text-xs underline">Esqueceu a senha?</a>
+                </div>
+            </div>
+
+            <!-- Social & Stats -->
+            <div class="flex items-center gap-4 text-xs font-bold text-yellow-500">
+                <span class="hidden lg:block"><span id="txt-players-online">Jogadores Online:</span> <span class="text-white">0</span></span>
+                <div class="flex gap-2">
+                    <a href="#" class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white hover:bg-blue-500"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="w-6 h-6 bg-blue-400 rounded flex items-center justify-center text-white hover:bg-blue-300"><i class="fab fa-twitter"></i></a>
+                </div>
+                
+                <!-- Language Dropdown -->
+                <select onchange="changeLanguage(this.value)" class="bg-black border border-yellow-700 text-white text-xs rounded p-1 cursor-pointer">
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="zh">中文 (Chinese)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area Wrapper -->
+    <main class="flex-grow flex flex-col items-center justify-start pt-4 pb-12 px-4 relative">
+        
+        <!-- Logo Area -->
+        <div class="text-center mb-6 relative z-10">
+            <h1 class="font-pirate text-4xl md:text-6xl lg:text-7xl logo-text uppercase tracking-wider leading-tight">
+                World For<br>Pirate Battle
+            </h1>
+            <p id="txt-subtitle" class="font-western text-yellow-500 text-lg md:text-xl tracking-widest mt-2 drop-shadow-md">
+                Conquiste os Sete Mares ou Morra Tentando
+            </p>
+        </div>
+
+        <!-- ================= HOME PAGE CONTENT ================= -->
+        <div id="main-content" class="container mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-end max-w-6xl w-full">
+            
+            <!-- LEFT COLUMN: Trailer -->
+            <div class="hidden lg:block lg:col-span-3 gold-frame p-1 rounded-sm relative mt-10">
+                <div id="txt-trailer-label" class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-black px-3 py-1 border border-yellow-700 rounded text-yellow-500 text-xs font-bold uppercase z-20">
+                    Trailer
+                </div>
+                <div class="w-full h-40 bg-black flex items-center justify-center overflow-hidden relative border border-gray-800">
+                    <video controls class="w-full h-full object-cover">
+                        <source src="img/v.mp4" type="video/mp4">
+                        Seu navegador não suporta a tag de vídeo.
+                    </video>
+                </div>
+            </div>
+
+            <!-- CENTER COLUMN: Registration Parchment -->
+            <div class="col-span-1 lg:col-span-6 z-20">
+                <div class="w-full flex justify-center -mb-4 relative z-10">
+                    <div id="txt-register-header" class="bg-gradient-to-b from-yellow-700 to-yellow-900 text-white px-8 py-2 rounded-t-lg border-2 border-yellow-500 border-b-0 shadow-lg font-western tracking-widest uppercase">
+                        Registrar
+                    </div>
+                </div>
+
+                <div class="parchment-bg p-6 md:p-8 rounded-sm relative decorative-side">
+                    <div class="absolute -top-2 left-2 w-4 h-8 bg-yellow-900 rounded-full border border-black z-30"></div>
+                    <div class="absolute -top-2 right-2 w-4 h-8 bg-yellow-900 rounded-full border border-black z-30"></div>
+
+                    <!-- Register Form (Trigger Dev Modal on Submit) -->
+                    <form class="space-y-4" onsubmit="event.preventDefault(); showDevModal();">
+                        <div>
+                            <label id="txt-label-name" class="block text-[#3e2723] font-bold text-sm mb-1 uppercase">Nome de Pirata</label>
+                            <input id="inp-pirate" type="text" class="w-full p-2 rounded input-carved" placeholder="Ex: Barba Ruiva">
+                        </div>
+                        <div>
+                            <label id="txt-label-pass" class="block text-[#3e2723] font-bold text-sm mb-1 uppercase">Senha Secreta</label>
+                            <input id="inp-secret" type="password" class="w-full p-2 rounded input-carved" placeholder="********">
+                        </div>
+                        <div>
+                            <label id="txt-label-email" class="block text-[#3e2723] font-bold text-sm mb-1 uppercase">Email</label>
+                            <input id="inp-email" type="email" class="w-full p-2 rounded input-carved" placeholder="seu@email.com">
+                        </div>
+                        <div class="space-y-2 mt-4 text-[#3e2723] text-xs font-bold">
+                            <label class="flex items-start gap-2 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" class="custom-checkbox mt-1">
+                                <span id="txt-check-terms">Li e aceito os Termos e Condições e a Declaração de Proteção de Dados.</span>
+                            </label>
+                            <label class="flex items-start gap-2 cursor-pointer hover:opacity-80">
+                                <input type="checkbox" class="custom-checkbox mt-1" checked>
+                                <span id="txt-check-news">Quero receber notícias sobre tesouros e atualizações.</span>
+                            </label>
+                        </div>
+                        <div class="flex justify-center my-2 opacity-50">
+                            <i class="fas fa-skull-crossbones text-[#3e2723] text-4xl"></i>
+                        </div>
+                        <div class="relative w-full">
+                            <div class="absolute top-1/2 -left-4 transform -translate-y-1/2 text-yellow-600 text-3xl"><i class="fas fa-dragon"></i></div>
+                            <div class="absolute top-1/2 -right-4 transform -translate-y-1/2 text-yellow-600 text-3xl scale-x-[-1]"><i class="fas fa-dragon"></i></div>
+                            <button type="submit" class="w-full btn-play text-white font-pirate text-2xl md:text-3xl py-4 uppercase tracking-widest relative z-10">
+                                <span id="txt-btn-play-main">Jogue Agora</span><br>
+                                <span id="txt-btn-play-sub" class="text-sm font-sans normal-case text-green-100 opacity-90">Grátis para sempre!</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Screenshots -->
+            <div class="hidden lg:block lg:col-span-3 gold-frame p-1 rounded-sm relative mt-10">
+                <div id="txt-screenshots-label" class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-black px-3 py-1 border border-yellow-700 rounded text-yellow-500 text-xs font-bold uppercase z-20">
+                    Screenshots
+                </div>
+                <div class="w-full h-40 bg-black overflow-hidden relative">
+                    <img id="screenshot-img" src="img/w.png" alt="Gameplay" class="object-cover w-full h-full opacity-80 hover:opacity-100 transition duration-500">
+                    <div onclick="toggleScreenshot()" class="absolute top-1/2 left-1 text-yellow-500 cursor-pointer drop-shadow-md hover:scale-110 z-10"><i class="fas fa-chevron-left"></i></div>
+                    <div onclick="toggleScreenshot()" class="absolute top-1/2 right-1 text-yellow-500 cursor-pointer drop-shadow-md hover:scale-110 z-10"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+
+            <!-- Mobile Buttons -->
+            <div class="lg:hidden col-span-1 w-full flex gap-4 justify-center mt-4">
+                <button class="bg-gray-900 border border-yellow-600 text-yellow-500 px-4 py-2 rounded text-sm uppercase font-bold w-1/2">
+                    <i class="fas fa-video mr-2"></i> <span id="txt-mobile-trailer">Trailer</span>
+                </button>
+                <button class="bg-gray-900 border border-yellow-600 text-yellow-500 px-4 py-2 rounded text-sm uppercase font-bold w-1/2">
+                    <i class="fas fa-images mr-2"></i> <span id="txt-mobile-photos">Fotos</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= TERMS & CONDITIONS CONTENT ================= -->
+        <div id="terms-content" class="container mx-auto max-w-4xl w-full hidden">
+            <div class="w-full flex justify-between items-center mb-4">
+                <button onclick="showHome()" class="nav-btn px-4 py-2 text-white shadow-lg flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Jogo
+                </button>
+                <h2 class="font-western text-2xl text-yellow-500 drop-shadow-md">Documentos Oficiais</h2>
+            </div>
+            
+            <iframe src="terms.html" class="w-full h-[70vh] border-[4px] border-[#5d4037] rounded-md shadow-inner bg-[#e8dcb5]"></iframe>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="container mx-auto px-4 mb-4 z-10">
+        <nav class="flex flex-wrap justify-center gap-2 md:gap-6">
+            <a id="txt-nav-home" href="javascript:void(0)" onclick="showHome()" class="nav-btn px-6 py-2 text-white shadow-lg text-center min-w-[100px]">Início</a>
+            <!-- Link do Fórum Atualizado -->
+            <a id="txt-nav-forum" href="https://discord.gg/aj4BrhMVYk" target="_blank" class="nav-btn px-6 py-2 text-white shadow-lg text-center min-w-[100px]">Fórum</a>
+            <!-- Link Atualizado para Blog & Loja -->
+            <a id="txt-nav-blog" href="blog.html" class="nav-btn px-6 py-2 text-white shadow-lg text-center min-w-[100px]">Blog & Loja</a>
+            <a id="txt-nav-videos" href="#" class="nav-btn px-6 py-2 text-white shadow-lg text-center min-w-[100px]">Vídeos</a>
+        </nav>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full bg-black bg-opacity-90 text-gray-500 text-xs py-6 border-t border-yellow-900/30">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex flex-wrap justify-center gap-4 mb-4 text-gray-400 font-bold uppercase">
+                <a id="txt-footer-tcs" href="javascript:void(0)" onclick="showTerms()" class="hover:text-white cursor-pointer">T&Cs</a>
+                <span class="text-gray-700">|</span>
+                <a id="txt-footer-privacy" href="javascript:void(0)" onclick="showTerms()" class="hover:text-white cursor-pointer">Política de Privacidade</a>
+                <span class="text-gray-700">|</span>
+                <!-- Link de Suporte Atualizado -->
+                <a id="txt-footer-support" href="https://discord.gg/aj4BrhMVYk" target="_blank" class="hover:text-white">Suporte</a>
+                <span class="text-gray-700">|</span>
+                <!-- Link do Fórum Atualizado -->
+                <a id="txt-footer-forum" href="https://discord.gg/aj4BrhMVYk" target="_blank" class="hover:text-white">Fórum</a>
+            </div>
+            <p id="txt-footer-rights">&copy; 2026 World For Pirate Battle. Todos os direitos reservados.</p>
+            <p id="txt-footer-demo" class="mt-2 text-[10px] text-gray-600">Este site é provisório até o lançamento do Beta do jogo World For Pirate Battle 2026.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="translations.js"></script>
+
+</body>
+</html>
