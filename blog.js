@@ -1,87 +1,105 @@
 // --- Lógica das Abas ---
 function openTab(tabName) {
-    // Esconde todas as abas
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => tab.classList.remove('active'));
-
-    // Remove a classe ativa de todos os botões
     const buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
-
-    // Mostra a aba selecionada
     document.getElementById('tab-' + tabName).classList.add('active');
     
-    // Ativa o botão selecionado
-    document.getElementById('btn-' + tabName).classList.add('active');
+    const btn = document.getElementById('txt-tab-' + tabName) || document.getElementById('btn-' + tabName);
+    if(btn) btn.classList.add('active');
 }
 
-// --- Lógica da Loja (Carrinho) ---
-let cartTotalDiamonds = 0;
-let cartTotalPrice = 0.0;
-const cartItemsContainer = document.getElementById('cart-items');
+// --- Lógica da Loja (Carrinho Inteligente) ---
+// Agora armazenamos objetos { index: numero, diamonds: numero }
+let cartItems = []; 
 
-function addToCart(diamonds, price) {
-    // Se o total for 0, significa que o carrinho estava vazio (ou com o texto placeholder)
-    // Limpamos antes de adicionar o primeiro item
-    if (cartTotalDiamonds === 0) {
-        cartItemsContainer.innerHTML = '';
-        cartItemsContainer.classList.remove('text-center', 'italic', 'text-gray-400');
+function selectItem(index, diamonds) {
+    // Adiciona o item à lista (apenas referência, sem preço fixo)
+    cartItems.push({ index: index, diamonds: diamonds });
+    
+    // Redesenha o carrinho com a moeda atual
+    renderCart();
+}
+
+function renderCart() {
+    const cartContainer = document.getElementById('cart-items');
+    
+    // Se o carrinho estiver vazio
+    if (cartItems.length === 0) {
+        const currentLang = localStorage.getItem('wfpb_lang') || 'pt';
+        // Pega texto traduzido ou padrão
+        // Nota: translations está no outro arquivo, mas acessível globalmente
+        let emptyText = 'Carrinho vazio';
+        if (typeof translations !== 'undefined' && translations[currentLang]) {
+            emptyText = translations[currentLang]['cart-empty'];
+        }
+        
+        cartContainer.innerHTML = `<span id="txt-cart-empty">${emptyText}</span>`;
+        cartContainer.classList.add('text-center', 'italic', 'text-gray-400');
+        
+        // Zera os totais na tela
+        document.getElementById('total-diamonds').innerText = '0';
+        document.getElementById('total-price').innerText = `${currentPriceConfig.currency} 0,00`;
+        return;
     }
 
-    cartTotalDiamonds += diamonds;
-    cartTotalPrice += price;
+    // Se tiver itens, limpa e redesenha
+    cartContainer.innerHTML = '';
+    cartContainer.classList.remove('text-center', 'italic', 'text-gray-400');
 
-    const itemDiv = document.createElement('div');
-    // Melhorando o visual do item da lista
-    itemDiv.className = 'cart-item flex justify-between items-center p-2 mb-2 bg-[#2a1b0e] border border-[#5d4037] rounded shadow-sm hover:bg-[#3e2723] transition-colors';
+    let totalDiamonds = 0;
+    let totalPrice = 0;
+
+    cartItems.forEach((item, cartIndex) => {
+        // Pega o preço ATUAL baseado na configuração de moeda global
+        const currentPrice = currentPriceConfig.values[item.index];
+        
+        totalDiamonds += item.diamonds;
+        totalPrice += currentPrice;
+
+        // Formatação do item
+        let formattedPrice = currentPrice.toLocaleString(currentPriceConfig.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (currentPriceConfig.locale === 'zh-CN') formattedPrice = currentPrice.toFixed(2);
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cart-item flex justify-between items-center p-2 mb-2 bg-[#2a1b0e] border border-[#5d4037] rounded shadow-sm hover:bg-[#3e2723] transition-colors';
+        
+        itemDiv.innerHTML = `
+            <div class="flex flex-col text-left">
+                <span class="text-blue-300 font-bold text-sm">${item.diamonds.toLocaleString(currentPriceConfig.locale)} Dimas</span>
+                <span class="text-[#ffd700] text-xs">${currentPriceConfig.currency} ${formattedPrice}</span>
+            </div>
+            <button onclick="removeCartItem(${cartIndex})" class="text-red-500 hover:text-red-300 p-2 rounded-full hover:bg-black/20 transition" title="Remover">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        `;
+        cartContainer.appendChild(itemDiv);
+    });
+
+    // Atualiza Totais
+    document.getElementById('total-diamonds').innerText = totalDiamonds.toLocaleString(currentPriceConfig.locale);
     
-    itemDiv.innerHTML = `
-        <div class="flex flex-col text-left">
-            <span class="text-blue-300 font-bold text-sm">${diamonds.toLocaleString('pt-BR')} Dimas</span>
-            <span class="text-[#ffd700] text-xs">R$ ${price.toFixed(2).replace('.', ',')}</span>
-        </div>
-        <button onclick="removeFromCart(this, ${diamonds}, ${price})" class="text-red-500 hover:text-red-300 p-2 rounded-full hover:bg-black/20 transition" title="Remover">
-            <i class="fas fa-trash-alt"></i>
-        </button>
-    `;
-    cartItemsContainer.appendChild(itemDiv);
+    let formattedTotal = totalPrice.toLocaleString(currentPriceConfig.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (currentPriceConfig.locale === 'zh-CN') formattedTotal = totalPrice.toFixed(2);
     
-    // Rola para o fim da lista
-    cartItemsContainer.scrollTop = cartItemsContainer.scrollHeight;
+    document.getElementById('total-price').innerText = `${currentPriceConfig.currency} ${formattedTotal}`;
     
-    updateDisplay();
+    // Rola para o fim
+    cartContainer.scrollTop = cartContainer.scrollHeight;
 }
 
-function removeFromCart(button, diamonds, price) {
-    // Remove o elemento visualmente
-    button.closest('.cart-item').remove();
-    
-    // Atualiza os totais
-    cartTotalDiamonds -= diamonds;
-    cartTotalPrice -= price;
-    
-    // Evita problemas de precisão com float (ex: -0.000001)
-    if (cartTotalPrice < 0) cartTotalPrice = 0;
-    if (cartTotalDiamonds < 0) cartTotalDiamonds = 0;
-
-    updateDisplay();
-
-    // Se ficou vazio (total zerado), restaura a mensagem de "Carrinho vazio"
-    if (cartTotalDiamonds === 0) {
-        cartItemsContainer.innerHTML = 'Carrinho vazio';
-        cartItemsContainer.classList.add('text-center', 'italic', 'text-gray-400');
-    }
-}
-
-function updateDisplay() {
-    document.getElementById('total-diamonds').innerText = cartTotalDiamonds.toLocaleString('pt-BR');
-    document.getElementById('total-price').innerText = 'R$ ' + cartTotalPrice.toFixed(2).replace('.', ',');
+function removeCartItem(indexToRemove) {
+    // Remove o item pelo índice no array
+    cartItems.splice(indexToRemove, 1);
+    // Redesenha tudo
+    renderCart();
 }
 
 // --- Lógica do Modal de Compra ---
 function checkout() {
-    if (cartTotalDiamonds === 0) {
-        alert("Seu carrinho está vazio, marujo!");
+    if (cartItems.length === 0) {
+        alert("Carrinho vazio!");
         return;
     }
     const modal = document.getElementById('store-modal');
@@ -93,20 +111,16 @@ function closeStoreModal() {
     modal.classList.add('hidden');
 }
 
-// --- Lógica para Alternar Imagens do Jogo 1 (World For Pirate Battle) ---
-// Alterna entre img/1.png e img/2.png a cada 8 segundos
+// --- Rotação de Imagem ---
 let currentPirateImg = 1;
 function rotatePirateImages() {
     const imgElement = document.getElementById('pirate-game-img');
     if (imgElement) {
         currentPirateImg = (currentPirateImg === 1) ? 2 : 1;
-        // Adiciona classe de fade para transição suave
         imgElement.classList.remove('fade-in-image');
-        void imgElement.offsetWidth; // Trigger reflow para reiniciar animação
+        void imgElement.offsetWidth;
         imgElement.classList.add('fade-in-image');
         imgElement.src = `img/${currentPirateImg}.png`;
     }
 }
-
-// Inicia o intervalo da rotação de imagem (8s)
 setInterval(rotatePirateImages, 8000);
